@@ -37,27 +37,39 @@ export class News extends Component {
       totalResults: parsedData.totalResults,
     });
   }
+  // async Updatenews(){
+
+  //   let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=b90b723723564ab4ba42b53af11e9440&page=${this.state.page - 1}&pageSize=${this.props.pageSize}`;
+  //   this.setState({ loading: true });
+  //   let data = await fetch(url);
+  //   let parsedData = await data.json();
+  //   this.setState({
+  //     articles: parsedData.articles,
+  //     totalResults: parsedData.totalResults,
+  //     loading: false,
+  //   });
+
+  // }
+
+  
 
   Preclick = async () => {
-    let url = `https://newsapi.org/v2/top-headlines?country=${
-      this.props.country
-    }&category=${
-      this.props.category
-    }&apiKey=b90b723723564ab4ba42b53af11e9440&page=${
-      this.state.page - 1
-    }&pageSize=${this.props.pageSize}`;
+    let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=b90b723723564ab4ba42b53af11e9440&page=${this.state.page - 1}&pageSize=${this.props.pageSize}`;
     this.setState({ loading: true });
     let data = await fetch(url);
     let parsedData = await data.json();
     this.setState({
       articles: parsedData.articles,
       totalResults: parsedData.totalResults,
-    });
-
-    this.setState({
       page: this.state.page - 1,
       loading: false,
     });
+// this.setState({
+//   page: this.state.page - 1,
+
+// })
+// this.Updatenews();
+    
     //here false is value but for page its not a value we want complete this.state.page-1
   };
 
@@ -78,12 +90,17 @@ export class News extends Component {
       this.setState({ loading: true });
       let data = await fetch(url);
       let parsedData = await data.json();
-      this.setState({ articles: parsedData.articles });
+      this.setState({ articles: parsedData.articles, page: this.state.page + 1, 
+        loading: false, });
 
-      this.setState({
-        page: this.state.page + 1, 
-        loading: false,
-      });
+      // this.setState({
+      //   page: this.state.page + 1,
+        
+      // });
+      // this.Updatenews();
+
+
+    
     }
   };
 
@@ -111,6 +128,9 @@ export class News extends Component {
                         : "https://play-lh.googleusercontent.com/_ahCmEdTn8h5omlAg0jg9Y15KArlptm4qcbnyWSzGU-jM4mR1LeArqbMM7DzgZjNywO2"
                     }
                     newsUrl={element.url}
+                    author={element.author? element.author:"Unknown"}
+                    date={element.publishedAt}
+                    source={element.source.name}
                   />
                 </div>
               );
