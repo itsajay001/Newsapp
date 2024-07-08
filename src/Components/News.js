@@ -3,13 +3,10 @@ import NewsItem from "./NewsItem";
 import Spinner from "./Spinner";
 import PropTypes from "prop-types";
 
-
-
-
 export class News extends Component {
   static defaultProps = {
     country: "in",
-    pageSize: 5,
+    pageSize: 20,
     category: "general",
   };
 
@@ -19,113 +16,120 @@ export class News extends Component {
     category: PropTypes.string,
   };
 
-  capitalizeFirstLetter(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-  }
-
-  constructor(props) {
-    super(props);
+  constructor() {
+    super();
     this.state = {
-      articles: this.articles,
-      totalResults: this.totalResults,
-      loading: false,
+      articles: [],
+      loading: true,
       page: 1,
     };
-    //this is by default page 1 state
-    document.title = `${this.capitalizeFirstLetter(
-      this.props.category
-    )} - News`;
   }
-  async componentDidMount() {
-    // let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=b90b723723564ab4ba42b53af11e9440&page=1&pageSize=${this.props.pageSize}`;
-    // let data = await fetch(url);
-    // let parsedData = await data.json();
-    // this.setState({
-    //   articles: parsedData.articles,
-    //   totalResults: parsedData.totalResults,
-    // });
-    this.Updatenews();
-  }
-  async Updatenews() {
-    let url = `https://newsapi.org/v2/top-headlines?country=${
-      this.props.country
-    }&category=${
-      this.props.category
-    }&apiKey=b90b723723564ab4ba42b53af11e9440&page=${
-      this.state.page - 1
-    }&pageSize=${this.props.pageSize}`;
+   async updateNews(){
+    this.props.setProgress(10);
+
+    let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&apiKey=dbe57b028aeb41e285a226a94865f7a7&page=${this.state.page}&pageSize=20`;
     this.setState({ loading: true });
     let data = await fetch(url);
     let parsedData = await data.json();
-    
+    console.log(parsedData);
     this.setState({
       articles: parsedData.articles,
       totalResults: parsedData.totalResults,
       loading: false,
     });
+    
+    this.props.setProgress(100);
+
+
+   }
+
+  async componentDidMount() {
+    this.updateNews();
   }
 
-  Preclick = async () => {
-    // let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=b90b723723564ab4ba42b53af11e9440&page=${this.state.page - 1}&pageSize=${this.props.pageSize}`;
-    // this.setState({ loading: true });
+  handlePrevClick = async () => {
+    // console.log("Previous");
+    // let url = `https://newsapi.org/v2/top-headlines?country=${
+    //   this.props.country
+    // }&apiKey=b90b723723564ab4ba42b53af11e9440&page=${
+    //   this.state.page - 1
+    // }&pageSize=20`;
     // let data = await fetch(url);
     // let parsedData = await data.json();
+    // console.log(parsedData);
     // this.setState({
-    //   articles: parsedData.articles,
-    //   totalResults: parsedData.totalResults,
     //   page: this.state.page - 1,
+    //   articles: parsedData.articles,
     //   loading: false,
     // });
-    this.setState({
-      page: this.state.page - 1,
-    });
-    this.Updatenews();
-
-    //here false is value but for page its not a value we want complete this.state.page-1
+    this.setState({page:this.state.page-1})
+    this.updateNews();
   };
 
-  Nextclick = async () => {
-    
-      this.setState({
-        page: this.state.page + 1,
-      });
-      this.Updatenews();
-    }
+  handleNextClick = async () => {
+    // console.log("Next");
+    // if (this.state.page + 1 > Math.ceil(this.state.totalResults / 20)) {
+    // } else {
+    //   let url = `https://newsapi.org/v2/top-headlines?country=in&apiKey=dbe57b028aeb41e285a226a94865f7a7&page=${
+    //     this.state.page + 1
+    //   }&pageSize=20`;
 
-    
-  
+    //   this.setState({ loading: true });
+
+    //   let data = await fetch(url);
+    //   let parsedData = await data.json();
+    //   console.log(parsedData);
+    //   this.setState({
+    //     page: this.state.page + 1,
+    //     articles: parsedData.articles,
+    //     loading: false,
+    //   });
+    // }
+    this.setState({page:this.state.page+1})
+    this.updateNews();
+  };
 
   render() {
     return (
       <div className="container my-3">
-      <h1 className="text-center" style={{ margin: '35px 0px' }}>NewsMonkey - Top {this.capitalizeFirstLetter(this.props.category)} Headlines</h1>
-      {this.state.loading && <Spinner />}
-      <div className="row">
-          {!this.state.loading && this.state.articles && this.state.articles.map((element) => {
-              return <div className="col-md-4" key={element.url}>
-                  <NewsItem title={element.title ? element.title : ""} description={element.description ? element.description : ""} imageUrl={element.urlToImage } newsUrl={element.url} author={element.author} date={element.publishedAt} source={element.source.name} />
-              </div>
-          })}
-      </div>
-        
+        <h1 className="text-center">NewsMonkey - Top Headlines</h1>
+
+        {this.state.loading && <Spinner />}
+
+        <div className="row">
+          {!this.state.loading &&
+            this.state.articles.map((element) => {
+              return (
+                <div className="col-md-4" key={element.url}>
+                  <NewsItem
+                    title={element.title? element.title : ""}
+                    description={element.description ? element.description : ""}
+                    imageUrl={element.urlToImage}
+                    newsUrl={element.url}
+                    source={element.source.name}
+                    
+                  />
+                </div>
+              );
+            })}
+        </div>
         <div className="container d-flex justify-content-between">
           <button
+            disabled={this.state.page <= 1}
             type="button"
             className="btn btn-dark"
-            onClick={this.Preclick}
-            disabled={this.state.page <= 1} //page is already set in this.state which is 1
+            onClick={this.handlePrevClick}
           >
-            &laquo; Previous
+            {" "}
+            &larr; Previous
           </button>
           <button
-            disabled={
-              this.state.page + 1 > Math.ceil(this.state.totalResults / 20)
-            }
+          disabled={this.state.page + 1 > Math.ceil(this.state.totalResults / 20)}
             type="button"
             className="btn btn-dark"
-            onClick={this.Nextclick}
+            onClick={this.handleNextClick}
           >
-            Next &raquo;
+            Next &rarr;
           </button>
         </div>
       </div>
